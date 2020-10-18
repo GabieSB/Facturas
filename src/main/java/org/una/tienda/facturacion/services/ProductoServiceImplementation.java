@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.una.tienda.facturacion.dto.ProductoDTO;
 import org.una.tienda.facturacion.entities.Producto;
+import org.una.tienda.facturacion.exceptions.EvitarModificarContenidoInactivoExeption;
 import org.una.tienda.facturacion.repositories.IProductoRepository;
 import org.una.tienda.facturacion.utils.MapperUtils;
 
@@ -52,8 +53,9 @@ public class ProductoServiceImplementation implements IProductoService {
 
     @Override
     @Transactional
-    public Optional<ProductoDTO> update(ProductoDTO usuarioDTO, Long id) {
+    public Optional<ProductoDTO> update(ProductoDTO usuarioDTO, Long id) throws EvitarModificarContenidoInactivoExeption {
         if (productoRepository.findById(id).isPresent()) {
+            if(!usuarioDTO.isEstado()) throw new EvitarModificarContenidoInactivoExeption("No se puede modificar un producto inactivo");
             Producto producto = MapperUtils.EntityFromDto(usuarioDTO, Producto.class);
             producto = productoRepository.save(producto);
             return Optional.ofNullable(MapperUtils.DtoFromEntity(producto, ProductoDTO.class));

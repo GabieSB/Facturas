@@ -14,5 +14,7 @@ import org.una.tienda.facturacion.entities.FacturaDetalle;
  * @author LordLalo
  */
 public interface IFacturaDetalleRepository extends JpaRepository<FacturaDetalle, Long> {
+
+
     
 }

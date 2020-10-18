@@ -7,6 +7,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.una.tienda.facturacion.dto.ClienteDTO;
+import org.una.tienda.facturacion.exceptions.ClienteSinDatosEscencialesExeption;
+import org.una.tienda.facturacion.exceptions.EvitarModificarContenidoInactivoExeption;
+import org.una.tienda.facturacion.exceptions.ProductoConDescuentoMayorAlPermitidoException;
 
 import java.util.Optional;
 
@@ -18,20 +21,24 @@ class ClienteServiceImplementationTest {
     private IClienteService clienteService;
 
     ClienteDTO clienteEjemplo;
+    ClienteDTO clienteSinDatosEscenciales;
+    ClienteDTO clienteInactivo;
 
     @BeforeEach
     public void setup() {
         clienteEjemplo = new ClienteDTO() {
             {
+                setTelefono("87010393");
                 setDireccion("DisneyLandia");
                 setEmail("unaoveja@catmail.ton");
                 setNombre("Mickey Mouse");
+                setEstado(true);
             }
         };
     }
 
     @Test
-    public void sePuedeCrearUnClienteCorrectamente() {
+    public void sePuedeCrearUnClienteCorrectamente() throws ClienteSinDatosEscencialesExeption {
 
         clienteEjemplo = clienteService.create(clienteEjemplo);
 
@@ -46,17 +53,64 @@ class ClienteServiceImplementationTest {
         }
     }
 
-    @AfterEach
+    @Test
+    public void seEvitaCrearUnClienteSinDatosCompletos() throws ClienteSinDatosEscencialesExeption {
+        initDataForseEvitaCrearUnClienteSinDatosCompletos();
+
+        assertThrows(ClienteSinDatosEscencialesExeption.class,
+                () -> {
+                    clienteService.create(clienteSinDatosEscenciales);
+                }
+        );
+    }
+
+    private void initDataForseEvitaCrearUnClienteSinDatosCompletos() {
+        clienteSinDatosEscenciales = new ClienteDTO(){
+            {
+                setTelefono("87010344");
+                setNombre("Aslan");
+                setEstado(true);
+            }
+        };
+    }
+
+
+    @Test
+    public void seEvitaModificarUnClienteInactivo() throws EvitarModificarContenidoInactivoExeption, ClienteSinDatosEscencialesExeption {
+        initDataForseEvitaModificarUnClienteInactivo();
+
+        assertThrows(EvitarModificarContenidoInactivoExeption.class,
+                () -> {
+                    clienteService.update(clienteInactivo);
+                }
+        );
+    }
+
+    private void initDataForseEvitaModificarUnClienteInactivo() throws ClienteSinDatosEscencialesExeption {
+        clienteInactivo = new ClienteDTO(){
+            {
+                setDireccion("Marte de Andrómeda");
+                setTelefono("87010344");
+                setEmail("aslanElRey@narnia.co");
+                setNombre("Aslan");
+                setEstado(false);
+            }
+        };
+
+        clienteInactivo = clienteService.create(clienteInactivo);
+    }
+
+   /* @AfterEach
     public void tearDown() {
         if (clienteEjemplo != null) {
             clienteService.delete(clienteEjemplo.getId());
             clienteEjemplo = null;
         }
 
-    }
+    }*/
 
     @Test
-    public void sePuedeModificarUnClienteCorrectamente() {
+    public void sePuedeModificarUnClienteCorrectamente() throws ClienteSinDatosEscencialesExeption, EvitarModificarContenidoInactivoExeption {
         clienteEjemplo = clienteService.create(clienteEjemplo);
         clienteEjemplo.setNombre("Monica");
 
@@ -73,7 +127,7 @@ class ClienteServiceImplementationTest {
     }
 
     @Test
-    public void sePuedeEliminarUnClienteCorrectamente() {
+    public void sePuedeEliminarUnClienteCorrectamente() throws ClienteSinDatosEscencialesExeption {
 
         clienteEjemplo = clienteService.create(clienteEjemplo);
 
