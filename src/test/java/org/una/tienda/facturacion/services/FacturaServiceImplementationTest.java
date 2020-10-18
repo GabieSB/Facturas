@@ -7,8 +7,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.una.tienda.facturacion.dto.FacturaDTO;
-import org.una.tienda.facturacion.dto.FacturaDTO;
-import org.una.tienda.facturacion.exceptions.EvitarModificarContenidoInactivoExeption;
 
 import java.util.Optional;
 
@@ -20,7 +18,6 @@ class FacturaServiceImplementationTest {
     private IFacturaService facturaService;
 
     FacturaDTO facturaEjemplo;
-    FacturaDTO facturaInactivo;
 
     @BeforeEach
     public void setup() {
@@ -28,7 +25,6 @@ class FacturaServiceImplementationTest {
             {
                setCaja(1);
                setDescuentoGeneral(10);
-
             }
         };
     }
@@ -49,17 +45,17 @@ class FacturaServiceImplementationTest {
         }
     }
 
-  /*  @AfterEach
+    @AfterEach
     public void tearDown() {
         if (facturaEjemplo != null) {
             facturaService.delete(facturaEjemplo.getId());
             facturaEjemplo = null;
         }
 
-    }*/
+    }
 
     @Test
-    public void sePuedeModificarUnFacturaCorrectamente() throws EvitarModificarContenidoInactivoExeption {
+    public void sePuedeModificarUnFacturaCorrectamente() {
         facturaEjemplo = facturaService.create(facturaEjemplo);
         facturaEjemplo.setCaja(2);
 
@@ -91,30 +87,6 @@ class FacturaServiceImplementationTest {
             Assertions.assertTrue(true);
         }
 
-
-    }
-
-    @Test
-    public void seEvitaModificarUnFacturaInactivo() {
-        initDataForseEvitaModificarUnFacturaInactivo();
-
-        assertThrows(EvitarModificarContenidoInactivoExeption.class,
-                () -> {
-                    facturaService.update(facturaInactivo);
-                }
-        );
-    }
-
-    private void initDataForseEvitaModificarUnFacturaInactivo()  {
-        facturaInactivo = new FacturaDTO(){
-            {
-                setEstado(false);
-                setCaja(10);
-                setDescuentoGeneral(200);
-            }
-        };
-
-        facturaInactivo = facturaService.create(facturaInactivo);
 
     }
 

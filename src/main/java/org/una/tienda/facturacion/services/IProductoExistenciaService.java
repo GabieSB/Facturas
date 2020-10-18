@@ -2,7 +2,6 @@ package org.una.tienda.facturacion.services;
 
 import java.util.Optional;
 import org.una.tienda.facturacion.dto.ProductoExistenciaDTO;
-import org.una.tienda.facturacion.exceptions.EvitarModificarContenidoInactivoExeption;
 
 public interface IProductoExistenciaService {
 
@@ -12,5 +11,5 @@ public interface IProductoExistenciaService {
 
     public Optional<ProductoExistenciaDTO> findById(Long id);
 
-    public Optional<ProductoExistenciaDTO> update(ProductoExistenciaDTO productoExistenciaDTO, Long id) throws EvitarModificarContenidoInactivoExeption;
+    public Optional<ProductoExistenciaDTO> update(ProductoExistenciaDTO productoExistenciaDTO, Long id);
 }

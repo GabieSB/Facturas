@@ -5,20 +5,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.una.tienda.facturacion.dto.FacturaDTO;
 import org.una.tienda.facturacion.entities.Factura;
-import org.una.tienda.facturacion.exceptions.EvitarModificarContenidoInactivoExeption;
 import org.una.tienda.facturacion.repositories.IFacturaRepository;
 import org.una.tienda.facturacion.utils.MapperUtils;
 
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
-
 @Service
 public class FacturaServiceImplementation implements IFacturaService{
 
     @Autowired
     private IFacturaRepository facturaRepository;
-    @Autowired
-    private IProductoPrecioService productoPrecioService;
 
     private Optional<FacturaDTO> oneToDto(Optional<Factura> one) {
         if (one.isPresent()) {
@@ -37,11 +32,6 @@ public class FacturaServiceImplementation implements IFacturaService{
     @Override
     @Transactional
     public FacturaDTO create(FacturaDTO facturaDTO) {
-      //  AtomicReference<Double> suma = new AtomicReference<>((double) 0);
-
-//        facturaDTO.getFacturaDetalleList().forEach(k-> suma.set(productoPrecioService.findByProductoId(k.getProducto().getId()).get().getPrecioColones()));
-
-      
         Factura usuario = MapperUtils.EntityFromDto(facturaDTO, Factura.class);
         usuario = facturaRepository.save(usuario);
         return MapperUtils.DtoFromEntity(usuario, FacturaDTO.class);
@@ -59,9 +49,8 @@ public class FacturaServiceImplementation implements IFacturaService{
 
     @Override
     @Transactional
-    public Optional<FacturaDTO> update(FacturaDTO facturaDTO) throws EvitarModificarContenidoInactivoExeption {
+    public Optional<FacturaDTO> update(FacturaDTO facturaDTO) {
         if (facturaRepository.findById(facturaDTO.getId()).isPresent()) {
-            if(!facturaDTO.getEstado()) throw new EvitarModificarContenidoInactivoExeption("No se puede modificar una factura inactivo");
             Factura factura = MapperUtils.EntityFromDto(facturaDTO, Factura.class);
             factura = facturaRepository.save(factura);
             return Optional.ofNullable(MapperUtils.DtoFromEntity(factura, FacturaDTO.class));

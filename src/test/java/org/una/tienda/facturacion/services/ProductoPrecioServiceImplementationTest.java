@@ -8,9 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.una.tienda.facturacion.dto.ProductoDTO;
 import org.una.tienda.facturacion.dto.ProductoPrecioDTO;
-import org.una.tienda.facturacion.exceptions.EvitarModificarContenidoInactivoExeption;
 
 @SpringBootTest
 class ProductoPrecioServiceImplementationTest {
@@ -19,7 +17,6 @@ class ProductoPrecioServiceImplementationTest {
     private IProductoPrecioService productoPrecioService;
 
     ProductoPrecioDTO productoPrecioEjemplo;
-    ProductoPrecioDTO productoPrecioInactivo;
 
     @BeforeEach
     public void setup() {
@@ -51,7 +48,7 @@ class ProductoPrecioServiceImplementationTest {
     }
 
     @Test
-    public void sePuedeModificarUnProductoCorrectamente() throws EvitarModificarContenidoInactivoExeption {
+    public void sePuedeModificarUnProductoCorrectamente() {
 
         productoPrecioEjemplo = productoPrecioService.create(productoPrecioEjemplo);
         productoPrecioEjemplo.setPrecioColones(4000.0);
@@ -83,31 +80,6 @@ class ProductoPrecioServiceImplementationTest {
         }
     }
 
-    @Test
-    public void seEvitaModificarUnProductoPrecioInactivo() throws EvitarModificarContenidoInactivoExeption {
-        initDataForseEvitaModificarUnProductoPrecioInactivo();
-
-        assertThrows(EvitarModificarContenidoInactivoExeption.class,
-                () -> {
-                    productoPrecioService.update(productoPrecioInactivo, productoPrecioInactivo.getId());
-                }
-        );
-    }
-
-    private void initDataForseEvitaModificarUnProductoPrecioInactivo()  {
-        productoPrecioInactivo = new ProductoPrecioDTO(){
-            {
-                setEstado(false);
-                setPrecioColones((double) 12000);
-                setDescuentoMaximo((double) 1000);
-                setEstado(false);
-            }
-        };
-
-        productoPrecioInactivo = productoPrecioService.create(productoPrecioInactivo);
-        System.out.println(productoPrecioInactivo.getId());
-    }
-/*
     @AfterEach
     public void tearDown() {
         if (productoPrecioEjemplo != null) {
@@ -115,5 +87,5 @@ class ProductoPrecioServiceImplementationTest {
             productoPrecioEjemplo = null;
         }
 
-    }*/
+    }
 }

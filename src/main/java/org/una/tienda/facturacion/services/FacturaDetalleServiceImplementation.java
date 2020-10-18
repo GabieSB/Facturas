@@ -6,7 +6,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.una.tienda.facturacion.dto.FacturaDetalleDTO;
 import org.una.tienda.facturacion.dto.ProductoPrecioDTO;
 import org.una.tienda.facturacion.entities.FacturaDetalle;
-import org.una.tienda.facturacion.exceptions.EvitarModificarContenidoInactivoExeption;
 import org.una.tienda.facturacion.exceptions.ProductoConDescuentoMayorAlPermitidoException;
 import org.una.tienda.facturacion.repositories.IFacturaDetalleRepository;
 import org.una.tienda.facturacion.repositories.IProductoPrecioRepository;
@@ -67,9 +66,8 @@ public class FacturaDetalleServiceImplementation implements IFacturaDetalleServi
 
     @Override
     @Transactional
-    public Optional<FacturaDetalleDTO> update(FacturaDetalleDTO facturaDetalleDTO) throws EvitarModificarContenidoInactivoExeption {
+    public Optional<FacturaDetalleDTO> update(FacturaDetalleDTO facturaDetalleDTO) {
         if (facturaDetalleRepository.findById(facturaDetalleDTO.getId()).isPresent()) {
-            if(!facturaDetalleDTO.isEstado()) throw new EvitarModificarContenidoInactivoExeption("No se puede modificar un factura detalle inactivo");
             FacturaDetalle facturaDetalle = MapperUtils.EntityFromDto(facturaDetalleDTO, FacturaDetalle.class);
             facturaDetalle = facturaDetalleRepository.save(facturaDetalle);
             return Optional.ofNullable(MapperUtils.DtoFromEntity(facturaDetalle, FacturaDetalleDTO.class));

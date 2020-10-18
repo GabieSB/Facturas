@@ -6,9 +6,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.una.tienda.facturacion.dto.ProductoDTO;
+
 import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
-import org.una.tienda.facturacion.exceptions.EvitarModificarContenidoInactivoExeption;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -19,7 +19,6 @@ public class ProductoServiceImplementationTest {
     private IProductoService productoService;
 
     ProductoDTO productoEjemplo;
-    ProductoDTO productoInactivo;
 
     @BeforeEach
     public void setup() {
@@ -47,7 +46,7 @@ public class ProductoServiceImplementationTest {
         }
     }
       @Test
-    public void sePuedeModificarUnProductoCorrectamente() throws EvitarModificarContenidoInactivoExeption {
+    public void sePuedeModificarUnProductoCorrectamente() {
 
         productoEjemplo = productoService.create(productoEjemplo);
         productoEjemplo.setDescripcion("Producto en mal estado");
@@ -77,37 +76,13 @@ public class ProductoServiceImplementationTest {
         }
     }
 
-
-    @Test
-    public void seEvitaModificarUnProductoInactivo() throws EvitarModificarContenidoInactivoExeption {
-        initDataForseEvitaModificarUnProductoInactivo();
-
-        assertThrows(EvitarModificarContenidoInactivoExeption.class,
-                () -> {
-                    productoService.update(productoInactivo, productoInactivo.getId());
-                }
-        );
-    }
-
-    private void initDataForseEvitaModificarUnProductoInactivo()  {
-        productoInactivo = new ProductoDTO(){
-            {
-                setEstado(false);
-                setDescripcion("Varita Mágica");
-            }
-        };
-
-        productoInactivo = productoService.create(productoInactivo);
-        System.out.println(productoInactivo.getId());
-    }
-
-  /*  @AfterEach
+    @AfterEach
     public void tearDown() {
         if (productoEjemplo != null) {
             productoService.delete(productoEjemplo.getId());
             productoEjemplo = null;
         }
 
-    }*/
+    }
 
 }

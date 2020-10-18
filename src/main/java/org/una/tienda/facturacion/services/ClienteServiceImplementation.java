@@ -5,8 +5,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.una.tienda.facturacion.dto.ClienteDTO;
 import org.una.tienda.facturacion.entities.Cliente;
-import org.una.tienda.facturacion.exceptions.ClienteSinDatosEscencialesExeption;
-import org.una.tienda.facturacion.exceptions.EvitarModificarContenidoInactivoExeption;
 import org.una.tienda.facturacion.repositories.IClienteRepository;
 import org.una.tienda.facturacion.utils.MapperUtils;
 
@@ -34,16 +32,11 @@ public class ClienteServiceImplementation implements  IClienteService {
 
     @Override
     @Transactional
-    public ClienteDTO create(ClienteDTO clienteDTO) throws ClienteSinDatosEscencialesExeption {
-        if(clienteDTO.getTelefono() == null || clienteDTO.getEmail() == null || clienteDTO.getDireccion() ==null ){
-            throw new ClienteSinDatosEscencialesExeption("Se requiere correo, número de teléfono y dirección");
-        }
+    public ClienteDTO create(ClienteDTO clienteDTO) {
         Cliente usuario = MapperUtils.EntityFromDto(clienteDTO, Cliente.class);
         usuario = clienteRepository.save(usuario);
         return MapperUtils.DtoFromEntity(usuario, ClienteDTO.class);
     }
-
-
 
 
 
@@ -57,16 +50,13 @@ public class ClienteServiceImplementation implements  IClienteService {
 
     @Override
     @Transactional
-    public Optional<ClienteDTO> update(ClienteDTO clienteDTO) throws EvitarModificarContenidoInactivoExeption {
+    public Optional<ClienteDTO> update(ClienteDTO clienteDTO) {
         if (clienteRepository.findById(clienteDTO.getId()).isPresent()) {
-
-            if(!clienteDTO.getEstado()) throw new EvitarModificarContenidoInactivoExeption("No se puede modificar un cliente inactivo");
             Cliente cliente = MapperUtils.EntityFromDto(clienteDTO, Cliente.class);
             cliente = clienteRepository.save(cliente);
             return Optional.ofNullable(MapperUtils.DtoFromEntity(cliente, ClienteDTO.class));
         } else {
             return null;
-            //   throw new EvitarModificarContenidoInactivoExeption("No se puede modificar contenifo que no existe");
         }
     }
 
