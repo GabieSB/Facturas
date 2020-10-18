@@ -6,10 +6,13 @@
 package org.una.tienda.facturacion.dto;
 
 import java.util.Date;
+import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.una.tienda.facturacion.entities.FacturaDetalle;
 
 /**
  *
@@ -28,4 +31,5 @@ public class FacturaDTO {
     private Date fechaRegistro;
     private Date fechaModificacion;
     private ClienteDTO cliente;
+    private List<FacturaDetalleDTO> facturaDetalleList;
 }
