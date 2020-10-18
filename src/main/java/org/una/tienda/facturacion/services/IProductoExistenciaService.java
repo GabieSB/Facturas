@@ -12,5 +12,7 @@ public interface IProductoExistenciaService {
 
     public Optional<ProductoExistenciaDTO> findById(Long id);
 
+    public Optional<ProductoExistenciaDTO> findByProductoId(Long id);
+
     public Optional<ProductoExistenciaDTO> update(ProductoExistenciaDTO productoExistenciaDTO, Long id) throws EvitarModificarContenidoInactivoExeption;
 }

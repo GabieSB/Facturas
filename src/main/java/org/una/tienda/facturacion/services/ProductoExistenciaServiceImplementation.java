@@ -46,6 +46,13 @@ public class ProductoExistenciaServiceImplementation implements IProductoExisten
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public Optional<ProductoExistenciaDTO>findByProductoId(Long id) {
+        return oneToDto(productoExistenciaRepository.findByProductoIdId(id));
+    }
+
+
+    @Override
     @Transactional
     public Optional<ProductoExistenciaDTO> update(ProductoExistenciaDTO productoExistenciaDTO, Long id) throws EvitarModificarContenidoInactivoExeption {
         if (productoExistenciaRepository.findById(id).isPresent()) {

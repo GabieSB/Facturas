@@ -6,6 +6,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.una.tienda.facturacion.dto.FacturaDTO;
 import org.una.tienda.facturacion.dto.FacturaDetalleDTO;
 import org.una.tienda.facturacion.entities.Factura;
+import org.una.tienda.facturacion.entities.FacturaDetalle;
+import org.una.tienda.facturacion.exceptions.ClienteEstaInactivoExeption;
 import org.una.tienda.facturacion.exceptions.EvitarModificarContenidoInactivoExeption;
 import org.una.tienda.facturacion.repositories.IFacturaRepository;
 import org.una.tienda.facturacion.utils.MapperUtils;
@@ -38,11 +40,10 @@ public class FacturaServiceImplementation implements IFacturaService{
 
     @Override
     @Transactional
-    public FacturaDTO create(FacturaDTO facturaDTO) {
-        AtomicReference<Double> suma = new AtomicReference<>((double) 0);
-        List<FacturaDetalleDTO> facturaDetalleList = facturaDTO.getFacturaDetalleList();
+    public FacturaDTO create(FacturaDTO facturaDTO) throws ClienteEstaInactivoExeption {
 
-      
+        if(!facturaDTO.getCliente().getEstado()) throw new ClienteEstaInactivoExeption("No se puede registrar en la factura un cliente inactivo");
+
         Factura usuario = MapperUtils.EntityFromDto(facturaDTO, Factura.class);
         usuario = facturaRepository.save(usuario);
         return MapperUtils.DtoFromEntity(usuario, FacturaDTO.class);

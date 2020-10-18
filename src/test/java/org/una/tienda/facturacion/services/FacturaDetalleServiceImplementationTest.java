@@ -7,10 +7,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.una.tienda.facturacion.dto.*;
-import org.una.tienda.facturacion.exceptions.ClienteSinDatosEscencialesExeption;
-import org.una.tienda.facturacion.exceptions.EvitarModificarContenidoInactivoExeption;
+import org.una.tienda.facturacion.entities.FacturaDetalle;
+import org.una.tienda.facturacion.exceptions.*;
 import org.una.tienda.facturacion.exceptions.ProductoConDescuentoMayorAlPermitidoException;
-import org.una.tienda.facturacion.exceptions.ProductoPrecioCeroExeption;
 
 
 import java.util.Optional;
@@ -43,20 +42,14 @@ class FacturaDetalleServiceImplementationTest {
     FacturaDetalleDTO facturaDetalleInactivo;
     ProductoDTO productoPrueba;
     ProductoExistenciaDTO productoExistenciaPrueba;
+    ProductoExistenciaDTO productoSinExistenciaPrueba;
     ProductoPrecioDTO productoPrecioPrueba;
     ClienteDTO clientePrueba;
     FacturaDTO  facturaPrueba;
     FacturaDetalleDTO facturaDetallePruebaConExtraDescuento = new FacturaDetalleDTO();
 
-
-
-
-
-
-
-
    @Test
-    public void sePuedeCrearUnFacturaDetalleCorrectamente() throws ProductoConDescuentoMayorAlPermitidoException, ProductoPrecioCeroExeption {
+    public void sePuedeCrearUnFacturaDetalleCorrectamente() throws ProductoConDescuentoMayorAlPermitidoException, FacturaCantidadCero, ProductoSinExistencia {
 
         facturaDetalleEjemplo = facturaDetalleService.create(facturaDetalleEjemplo);
 
@@ -72,7 +65,7 @@ class FacturaDetalleServiceImplementationTest {
     }
 
     @BeforeEach
-    public void setup() throws ClienteSinDatosEscencialesExeption {
+    public void setup() throws ClienteSinDatosEscencialesExeption, ClienteEstaInactivoExeption {
         productoEjemplo = new ProductoDTO() {
             {
                 setDescripcion("Producto De Ejemplo");
@@ -83,7 +76,7 @@ class FacturaDetalleServiceImplementationTest {
 
         productoExistenciaEjemplo = new ProductoExistenciaDTO() {
             {
-                setProducto(productoEjemplo);
+                setProductoId(productoEjemplo);
                 setCantidad(1);
             }
         };
@@ -104,6 +97,7 @@ class FacturaDetalleServiceImplementationTest {
 
         clienteEjemplo = new ClienteDTO() {
             {
+                setEstado(true);
                 setNombre("ClienteDeEjemplo");
                 setEmail("gallinaperro@catmail.com");
                 setDireccion("La Boveda de Gallinas");
@@ -130,6 +124,8 @@ class FacturaDetalleServiceImplementationTest {
             }
         };
 
+        System.out.println("esta sakiendo de before eahc");
+
     }
   /*  @AfterEach
     public void tearDown() {
@@ -141,7 +137,7 @@ class FacturaDetalleServiceImplementationTest {
     }*/
 
     @Test
-    public void sePuedeModificarUnFacturaDetalleCorrectamente() throws ProductoConDescuentoMayorAlPermitidoException, EvitarModificarContenidoInactivoExeption, ProductoPrecioCeroExeption {
+    public void sePuedeModificarUnFacturaDetalleCorrectamente() throws ProductoConDescuentoMayorAlPermitidoException, EvitarModificarContenidoInactivoExeption, FacturaCantidadCero, ProductoSinExistencia {
         facturaDetalleEjemplo = facturaDetalleService.create(facturaDetalleEjemplo);
         facturaDetalleEjemplo.setCantidad(10);
 
@@ -158,7 +154,7 @@ class FacturaDetalleServiceImplementationTest {
     }
 
     @Test
-    public void sePuedeEliminarUnFacturaDetalleCorrectamente() throws ProductoConDescuentoMayorAlPermitidoException, ProductoPrecioCeroExeption {
+    public void sePuedeEliminarUnFacturaDetalleCorrectamente() throws ProductoConDescuentoMayorAlPermitidoException, FacturaCantidadCero, ProductoSinExistencia {
 
         facturaDetalleEjemplo = facturaDetalleService.create(facturaDetalleEjemplo);
 
@@ -174,7 +170,7 @@ class FacturaDetalleServiceImplementationTest {
         }
     }
 
-    private void initDataForSeEvitaFacturarUnProductoConDescuentoMayorAlPermitido() throws ClienteSinDatosEscencialesExeption {
+    private void initDataForSeEvitaFacturarUnProductoConDescuentoMayorAlPermitido() throws ClienteSinDatosEscencialesExeption, ClienteEstaInactivoExeption {
         productoPrueba = new ProductoDTO() {
             {
                 setDescripcion("Producto De Ejemplo");
@@ -185,7 +181,7 @@ class FacturaDetalleServiceImplementationTest {
 
         productoExistenciaPrueba = new ProductoExistenciaDTO() {
             {
-                setProducto(productoPrueba);
+                setProductoId(productoPrueba);
                 setCantidad(1);
             }
         };
@@ -204,6 +200,7 @@ class FacturaDetalleServiceImplementationTest {
 
         clientePrueba = new ClienteDTO() {
             {
+                setEstado(true);
                 setNombre("ClienteDePrueba");
                 setEmail("gallinaperro@catmail.com");
                 setDireccion("La Boveda de Gallinas");
@@ -235,7 +232,7 @@ class FacturaDetalleServiceImplementationTest {
 
 
     @Test
-    public void seEvitaFacturarUnProductoConDescuentoMayorAlPermitido() throws ClienteSinDatosEscencialesExeption {
+    public void seEvitaFacturarUnProductoConDescuentoMayorAlPermitido() throws ClienteSinDatosEscencialesExeption, ClienteEstaInactivoExeption {
         initDataForSeEvitaFacturarUnProductoConDescuentoMayorAlPermitido();
 
         assertThrows(ProductoConDescuentoMayorAlPermitidoException.class,
@@ -246,7 +243,83 @@ class FacturaDetalleServiceImplementationTest {
     }
 
     @Test
-    public void seEvitaModificarUnaFacturaDetalleInactivo() throws EvitarModificarContenidoInactivoExeption, ProductoConDescuentoMayorAlPermitidoException, ProductoPrecioCeroExeption {
+    public void seEvitaFacturarCantidadCero() throws FacturaCantidadCero, ProductoConDescuentoMayorAlPermitidoException {
+        initDataForSeEvitaFacturarCero();
+
+        assertThrows(FacturaCantidadCero.class,
+                () -> {
+                    facturaDetalleService.create(facturaDetalleEjemplo);
+                }
+        );
+    }
+
+    private void initDataForSeEvitaFacturarCero() throws ProductoConDescuentoMayorAlPermitidoException, FacturaCantidadCero {
+
+        facturaDetalleEjemplo.setCantidad(0);
+
+    }
+
+    @Test
+    public void seEvitaFacturarProductoCantidadCero() throws FacturaCantidadCero, ProductoConDescuentoMayorAlPermitidoException, ClienteSinDatosEscencialesExeption {
+        initDataForSeEvitaFacturarProductoCantidadCero();
+
+        assertThrows(ProductoSinExistencia.class,
+                () -> {
+                    facturaDetalleService.create(facturaDetalleEjemplo);
+                }
+        );
+    }
+
+    private void initDataForSeEvitaFacturarProductoCantidadCero() throws ProductoConDescuentoMayorAlPermitidoException, FacturaCantidadCero, ClienteSinDatosEscencialesExeption {
+
+        productoEjemplo = new ProductoDTO() {
+            {
+                setDescripcion("Producto De Ejemplo");
+                setImpuesto(0.10);
+            }
+        };
+        productoEjemplo = productoService.create(productoEjemplo);
+
+        System.out.println(productoEjemplo.getId());
+
+        productoSinExistenciaPrueba = new ProductoExistenciaDTO() {
+            {
+                setProductoId(productoEjemplo);
+                setCantidad(0);
+                setEstado(true);
+            }
+        };
+
+        productoSinExistenciaPrueba = productoExistenciaService.create(productoSinExistenciaPrueba);
+
+
+        productoPrecioEjemplo = new ProductoPrecioDTO() {
+            {
+                setProductoId(productoEjemplo);
+                setPrecioColones((double) 1000);
+                setDescuentoMaximo((double) 100);
+                setDescuentoPromocional((double) 2);
+            }
+        };
+        productoPrecioEjemplo = productoPrecio.create(productoPrecioEjemplo);
+
+        System.out.println(productoPrecioEjemplo.getId());
+
+
+        facturaDetalleEjemplo = new FacturaDetalleDTO() {
+            {
+                setCantidad(1);
+                setProducto(productoEjemplo);
+                setFactura(facturaEjemplo);
+                setDescuentoFinal(productoPrecioEjemplo.getDescuentoMaximo() -5);
+                setEstado(true);
+            }
+        };
+
+    }
+
+    @Test
+    public void seEvitaModificarUnaFacturaDetalleInactivo() throws EvitarModificarContenidoInactivoExeption, ProductoConDescuentoMayorAlPermitidoException, FacturaCantidadCero, ProductoSinExistencia {
         initDataForseEvitaModificarUnaFacturaDetalleInactivo();
 
         assertThrows(EvitarModificarContenidoInactivoExeption.class,
@@ -256,7 +329,7 @@ class FacturaDetalleServiceImplementationTest {
         );
     }
 
-    private void initDataForseEvitaModificarUnaFacturaDetalleInactivo() throws ProductoConDescuentoMayorAlPermitidoException, ProductoPrecioCeroExeption {
+    private void initDataForseEvitaModificarUnaFacturaDetalleInactivo() throws ProductoConDescuentoMayorAlPermitidoException, FacturaCantidadCero, ProductoSinExistencia {
 
         facturaDetalleInactivo = new FacturaDetalleDTO() {
             {
@@ -271,59 +344,7 @@ class FacturaDetalleServiceImplementationTest {
 
     }
 
-    @Test
-    public void seEvitarFacturarUnProductoConPrecioCero() throws EvitarModificarContenidoInactivoExeption, ProductoConDescuentoMayorAlPermitidoException {
-        initDataForSeEvitaFacturarUnProductoPrecioCero();
 
-        assertThrows(ProductoPrecioCeroExeption.class,
-                () -> {
-                    facturaDetalleService.create(facturaDetalleEjemplo);
-                }
-        );
-    }
-
-    private void initDataForSeEvitaFacturarUnProductoPrecioCero() {
-        productoEjemplo = new ProductoDTO() {
-            {
-                setDescripcion("Producto De Ejemplo");
-                setImpuesto(0.10);
-            }
-        };
-        productoEjemplo = productoService.create(productoEjemplo);
-
-        productoExistenciaEjemplo = new ProductoExistenciaDTO() {
-            {
-                setProducto(productoEjemplo);
-                setCantidad(1);
-            }
-        };
-
-        productoExistenciaEjemplo = productoExistenciaService.create(productoExistenciaEjemplo);
-
-        productoPrecioEjemplo = new ProductoPrecioDTO() {
-            {
-                setProductoId(productoEjemplo);
-                setPrecioColones((double) 0);
-                setDescuentoMaximo((double) 100);
-                setDescuentoPromocional((double) 2);
-            }
-        };
-        productoPrecioEjemplo = productoPrecio.create(productoPrecioEjemplo);
-
-        System.out.println(productoPrecioEjemplo.getId());
-
-        facturaDetalleEjemplo = new FacturaDetalleDTO() {
-            {
-                setCantidad(1);
-                setProducto(productoEjemplo);
-                setFactura(facturaEjemplo);
-                setDescuentoFinal(productoPrecioEjemplo.getDescuentoMaximo() -5);
-                setEstado(true);
-            }
-        };
-
-
-    }
 
 
 }

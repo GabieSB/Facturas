@@ -6,8 +6,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.una.tienda.facturacion.dto.ClienteDTO;
 import org.una.tienda.facturacion.dto.FacturaDTO;
 import org.una.tienda.facturacion.dto.FacturaDTO;
+import org.una.tienda.facturacion.exceptions.ClienteEstaInactivoExeption;
+import org.una.tienda.facturacion.exceptions.ClienteSinDatosEscencialesExeption;
 import org.una.tienda.facturacion.exceptions.EvitarModificarContenidoInactivoExeption;
 
 import java.util.Optional;
@@ -18,24 +21,40 @@ class FacturaServiceImplementationTest {
 
     @Autowired
     private IFacturaService facturaService;
+    @Autowired
+    private IClienteService clienteService;
 
     FacturaDTO facturaEjemplo;
     FacturaDTO facturaInactivo;
+    ClienteDTO clienteEjemplo;
+    ClienteDTO clienteInactivo;
+
 
     @BeforeEach
-    public void setup() {
+    public void setup() throws ClienteSinDatosEscencialesExeption {
+        clienteEjemplo = new ClienteDTO() {
+            {
+                setEstado(true);
+                setNombre("ClienteDeEjemplo");
+                setEmail("gallinaperro@catmail.com");
+                setDireccion("La Boveda de Gallinas");
+                setTelefono("555555");
+            }
+        };
+        clienteService.create(clienteEjemplo);
         facturaEjemplo = new FacturaDTO() {
             {
                setCaja(1);
                setDescuentoGeneral(10);
                setEstado(true);
+               setCliente(clienteEjemplo);
 
             }
         };
     }
 
     @Test
-    public void sePuedeCrearUnFacturaCorrectamente() {
+    public void sePuedeCrearUnFacturaCorrectamente() throws ClienteEstaInactivoExeption {
 
         facturaEjemplo = facturaService.create(facturaEjemplo);
 
@@ -60,7 +79,7 @@ class FacturaServiceImplementationTest {
     }*/
 
     @Test
-    public void sePuedeModificarUnFacturaCorrectamente() throws EvitarModificarContenidoInactivoExeption {
+    public void sePuedeModificarUnFacturaCorrectamente() throws EvitarModificarContenidoInactivoExeption, ClienteEstaInactivoExeption {
         facturaEjemplo = facturaService.create(facturaEjemplo);
         facturaEjemplo.setCaja(2);
 
@@ -77,7 +96,7 @@ class FacturaServiceImplementationTest {
     }
 
     @Test
-    public void sePuedeEliminarUnFacturaCorrectamente() {
+    public void sePuedeEliminarUnFacturaCorrectamente() throws ClienteEstaInactivoExeption {
 
         facturaEjemplo = facturaService.create(facturaEjemplo);
 
@@ -96,7 +115,7 @@ class FacturaServiceImplementationTest {
     }
 
     @Test
-    public void seEvitaModificarUnFacturaInactivo() {
+    public void seEvitaModificarUnFacturaInactivo() throws ClienteEstaInactivoExeption {
         initDataForseEvitaModificarUnFacturaInactivo();
 
         assertThrows(EvitarModificarContenidoInactivoExeption.class,
@@ -106,16 +125,51 @@ class FacturaServiceImplementationTest {
         );
     }
 
-    private void initDataForseEvitaModificarUnFacturaInactivo()  {
+    private void initDataForseEvitaModificarUnFacturaInactivo() throws ClienteEstaInactivoExeption {
+
+
         facturaInactivo = new FacturaDTO(){
             {
                 setEstado(false);
                 setCaja(10);
                 setDescuentoGeneral(200);
+                setCliente(clienteEjemplo);
             }
         };
 
         facturaInactivo = facturaService.create(facturaInactivo);
+
+    }
+
+    @Test
+    public void seEvitaFacturarConClienteInactivo() throws ClienteEstaInactivoExeption, ClienteSinDatosEscencialesExeption {
+        initDataForSeEvitaFacturarConClienteInactivo();
+
+        assertThrows(ClienteEstaInactivoExeption.class,
+                () -> {
+                    facturaService.create(facturaEjemplo);
+                }
+        );
+    }
+
+    private void initDataForSeEvitaFacturarConClienteInactivo() throws ClienteEstaInactivoExeption, ClienteSinDatosEscencialesExeption {
+
+
+        clienteInactivo = new ClienteDTO() {
+            {
+                setEstado(false);
+                setNombre("ClienteDeEjemplo");
+                setEmail("gallinaperro@catmail.com");
+                setDireccion("La Boveda de Gallinas");
+                setTelefono("555555");
+            }
+        };
+        clienteInactivo = clienteService.create(clienteInactivo);
+
+        System.out.println("se crea el cliente " + clienteInactivo.getId());
+
+        facturaEjemplo.setCliente(clienteInactivo);
+
 
     }
 

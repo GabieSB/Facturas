@@ -6,13 +6,16 @@
 package org.una.tienda.facturacion.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.una.tienda.facturacion.entities.Cliente;
 import org.una.tienda.facturacion.entities.ProductoExistencia;
+
+import java.util.Optional;
 
 /**
  *
  * @author LordLalo
  */
 public interface IProductoExistenciaRepository extends JpaRepository<ProductoExistencia, Long> {
+
+    public Optional<ProductoExistencia> findByProductoIdId(long id);
     
 }

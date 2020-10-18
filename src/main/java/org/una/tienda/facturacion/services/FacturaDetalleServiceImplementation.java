@@ -4,11 +4,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.una.tienda.facturacion.dto.FacturaDetalleDTO;
+import org.una.tienda.facturacion.dto.ProductoExistenciaDTO;
 import org.una.tienda.facturacion.dto.ProductoPrecioDTO;
 import org.una.tienda.facturacion.entities.FacturaDetalle;
 import org.una.tienda.facturacion.exceptions.EvitarModificarContenidoInactivoExeption;
+import org.una.tienda.facturacion.exceptions.FacturaCantidadCero;
 import org.una.tienda.facturacion.exceptions.ProductoConDescuentoMayorAlPermitidoException;
-import org.una.tienda.facturacion.exceptions.ProductoPrecioCeroExeption;
+import org.una.tienda.facturacion.exceptions.ProductoSinExistencia;
 import org.una.tienda.facturacion.repositories.IFacturaDetalleRepository;
 import org.una.tienda.facturacion.repositories.IProductoPrecioRepository;
 import org.una.tienda.facturacion.utils.MapperUtils;
@@ -22,6 +24,8 @@ public class FacturaDetalleServiceImplementation implements IFacturaDetalleServi
     private IFacturaDetalleRepository facturaDetalleRepository;
     @Autowired
     private IProductoPrecioService productoPrecioService;
+    @Autowired
+    private IProductoExistenciaService productoExistenciaService;
 
     private Optional<FacturaDetalleDTO> oneToDto(Optional<FacturaDetalle> one) {
         if (one.isPresent()) {
@@ -39,12 +43,11 @@ public class FacturaDetalleServiceImplementation implements IFacturaDetalleServi
 
     @Override
     @Transactional
-    public FacturaDetalleDTO create(FacturaDetalleDTO facturaDetalle) throws ProductoConDescuentoMayorAlPermitidoException, ProductoPrecioCeroExeption {
+    public FacturaDetalleDTO create(FacturaDetalleDTO facturaDetalle) throws ProductoConDescuentoMayorAlPermitidoException, FacturaCantidadCero, ProductoSinExistencia {
 
         Optional<ProductoPrecioDTO> productoPrecio = productoPrecioService.findByProductoId(facturaDetalle.getProducto().getId());
-
-        System.out.println(facturaDetalle.getProducto().getId());
-
+        Optional<ProductoExistenciaDTO> productoExistencia = productoExistenciaService.findByProductoId(facturaDetalle.getProducto().getId());
+        System.out.println(productoExistencia.get().getCantidad());
         if (productoPrecio.isEmpty()) {
             //TODO:implementar verificar existencia de asignacion de precios
             throw new ProductoConDescuentoMayorAlPermitidoException("Se intenta facturar un sin precio registrado");
@@ -52,7 +55,12 @@ public class FacturaDetalleServiceImplementation implements IFacturaDetalleServi
         if (facturaDetalle.getDescuentoFinal() > productoPrecio.get().getDescuentoMaximo()) {
             throw new ProductoConDescuentoMayorAlPermitidoException("Se intenta facturar un producto con un descuento mayor al permitido");
         }
-        if(productoPrecio.get().getPrecioColones()==0) throw  new ProductoPrecioCeroExeption("No se puede facturar un producto con precio 0");
+        if(facturaDetalle.getCantidad() == 0.0) throw new FacturaCantidadCero("No se puede facturar un producto con cantidad 0");
+        if(productoExistencia.isEmpty()){
+            throw new ProductoSinExistencia("Se intenta facturar un producto sin exitencia registrada");
+        }
+        if(productoExistencia.get().getCantidad() <= 0) throw new ProductoSinExistencia("No se puede facturar un producto sin exitencia");
+
         FacturaDetalle usuario = MapperUtils.EntityFromDto(facturaDetalle, FacturaDetalle.class);
         usuario = facturaDetalleRepository.save(usuario);
         return MapperUtils.DtoFromEntity(usuario, FacturaDetalleDTO.class);
