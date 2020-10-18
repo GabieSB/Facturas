@@ -26,6 +26,7 @@ class ClienteServiceImplementationTest {
                 setDireccion("DisneyLandia");
                 setEmail("unaoveja@catmail.ton");
                 setNombre("Mickey Mouse");
+                setTelefono("12315");
             }
         };
     }

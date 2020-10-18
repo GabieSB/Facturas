@@ -6,7 +6,10 @@ import org.una.tienda.facturacion.exceptions.ProductoConDescuentoMayorAlPermitid
 import java.util.Optional;
 
 public interface IFacturaDetalleService {
+
     public FacturaDetalleDTO create(FacturaDetalleDTO facturaDetalleDTO) throws ProductoConDescuentoMayorAlPermitidoException;
+
+    public FacturaDetalleDTO create2(FacturaDetalleDTO facturaDetalleDTO);
 
     public Optional<FacturaDetalleDTO> update(FacturaDetalleDTO facturaDetalleDTO);
 

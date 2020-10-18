@@ -27,7 +27,6 @@ public class ProductoPrecioServiceImplementation implements IProductoPrecioServi
     @Override
     @Transactional
     public ProductoPrecioDTO create(ProductoPrecioDTO productoPrecioDTO) {
-        System.out.println(productoPrecioDTO.getProducto().getId());
         ProductoPrecio productoPrecio = MapperUtils.EntityFromDto(productoPrecioDTO, ProductoPrecio.class);
         productoPrecio = productoRepository.save(productoPrecio);
         return MapperUtils.DtoFromEntity(productoPrecio, ProductoPrecioDTO.class);

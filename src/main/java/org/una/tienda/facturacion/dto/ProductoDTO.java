@@ -31,6 +31,7 @@ public class ProductoDTO {
     private Date fechaModificacion;
     private double impuesto;
     private List<ProductoPrecioDTO> productPreciotList;
-
+    private List<FacturaDetalleDTO> facturaDetalleList;
+     private List<ProductoExistenciaDTO> productExistList;
 
 }
