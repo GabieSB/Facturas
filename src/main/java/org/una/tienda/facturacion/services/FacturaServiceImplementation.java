@@ -4,11 +4,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.una.tienda.facturacion.dto.FacturaDTO;
+import org.una.tienda.facturacion.dto.FacturaDetalleDTO;
 import org.una.tienda.facturacion.entities.Factura;
 import org.una.tienda.facturacion.exceptions.EvitarModificarContenidoInactivoExeption;
 import org.una.tienda.facturacion.repositories.IFacturaRepository;
 import org.una.tienda.facturacion.utils.MapperUtils;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -37,9 +39,8 @@ public class FacturaServiceImplementation implements IFacturaService{
     @Override
     @Transactional
     public FacturaDTO create(FacturaDTO facturaDTO) {
-      //  AtomicReference<Double> suma = new AtomicReference<>((double) 0);
-
-//        facturaDTO.getFacturaDetalleList().forEach(k-> suma.set(productoPrecioService.findByProductoId(k.getProducto().getId()).get().getPrecioColones()));
+        AtomicReference<Double> suma = new AtomicReference<>((double) 0);
+        List<FacturaDetalleDTO> facturaDetalleList = facturaDTO.getFacturaDetalleList();
 
       
         Factura usuario = MapperUtils.EntityFromDto(facturaDTO, Factura.class);

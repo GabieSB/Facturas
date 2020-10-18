@@ -8,6 +8,7 @@ import org.una.tienda.facturacion.dto.ProductoPrecioDTO;
 import org.una.tienda.facturacion.entities.FacturaDetalle;
 import org.una.tienda.facturacion.exceptions.EvitarModificarContenidoInactivoExeption;
 import org.una.tienda.facturacion.exceptions.ProductoConDescuentoMayorAlPermitidoException;
+import org.una.tienda.facturacion.exceptions.ProductoPrecioCeroExeption;
 import org.una.tienda.facturacion.repositories.IFacturaDetalleRepository;
 import org.una.tienda.facturacion.repositories.IProductoPrecioRepository;
 import org.una.tienda.facturacion.utils.MapperUtils;
@@ -38,7 +39,7 @@ public class FacturaDetalleServiceImplementation implements IFacturaDetalleServi
 
     @Override
     @Transactional
-    public FacturaDetalleDTO create(FacturaDetalleDTO facturaDetalle) throws ProductoConDescuentoMayorAlPermitidoException {
+    public FacturaDetalleDTO create(FacturaDetalleDTO facturaDetalle) throws ProductoConDescuentoMayorAlPermitidoException, ProductoPrecioCeroExeption {
 
         Optional<ProductoPrecioDTO> productoPrecio = productoPrecioService.findByProductoId(facturaDetalle.getProducto().getId());
 
@@ -51,6 +52,7 @@ public class FacturaDetalleServiceImplementation implements IFacturaDetalleServi
         if (facturaDetalle.getDescuentoFinal() > productoPrecio.get().getDescuentoMaximo()) {
             throw new ProductoConDescuentoMayorAlPermitidoException("Se intenta facturar un producto con un descuento mayor al permitido");
         }
+        if(productoPrecio.get().getPrecioColones()==0) throw  new ProductoPrecioCeroExeption("No se puede facturar un producto con precio 0");
         FacturaDetalle usuario = MapperUtils.EntityFromDto(facturaDetalle, FacturaDetalle.class);
         usuario = facturaDetalleRepository.save(usuario);
         return MapperUtils.DtoFromEntity(usuario, FacturaDetalleDTO.class);
