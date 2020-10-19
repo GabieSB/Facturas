@@ -1,6 +1,5 @@
 package org.una.tienda.facturacion.services;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -8,10 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.una.tienda.facturacion.dto.ClienteDTO;
 import org.una.tienda.facturacion.dto.FacturaDTO;
-import org.una.tienda.facturacion.dto.FacturaDTO;
 import org.una.tienda.facturacion.exceptions.ClienteEstaInactivoExeption;
 import org.una.tienda.facturacion.exceptions.ClienteSinDatosEscencialesExeption;
-import org.una.tienda.facturacion.exceptions.EvitarModificarContenidoInactivoExeption;
+import org.una.tienda.facturacion.exceptions.EModificarContenidoInactivoExeption;
 
 import java.util.Optional;
 
@@ -69,17 +67,9 @@ class FacturaServiceImplementationTest {
         }
     }
 
-  /*  @AfterEach
-    public void tearDown() {
-        if (facturaEjemplo != null) {
-            facturaService.delete(facturaEjemplo.getId());
-            facturaEjemplo = null;
-        }
-
-    }*/
 
     @Test
-    public void sePuedeModificarUnFacturaCorrectamente() throws EvitarModificarContenidoInactivoExeption, ClienteEstaInactivoExeption {
+    public void sePuedeModificarUnFacturaCorrectamente() throws EModificarContenidoInactivoExeption, ClienteEstaInactivoExeption {
         facturaEjemplo = facturaService.create(facturaEjemplo);
         facturaEjemplo.setCaja(2);
 
@@ -118,7 +108,7 @@ class FacturaServiceImplementationTest {
     public void seEvitaModificarUnFacturaInactivo() throws ClienteEstaInactivoExeption {
         initDataForseEvitaModificarUnFacturaInactivo();
 
-        assertThrows(EvitarModificarContenidoInactivoExeption.class,
+        assertThrows(EModificarContenidoInactivoExeption.class,
                 () -> {
                     facturaService.update(facturaInactivo);
                 }

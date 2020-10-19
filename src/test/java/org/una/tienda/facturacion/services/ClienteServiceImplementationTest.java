@@ -1,6 +1,5 @@
 package org.una.tienda.facturacion.services;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -8,8 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.una.tienda.facturacion.dto.ClienteDTO;
 import org.una.tienda.facturacion.exceptions.ClienteSinDatosEscencialesExeption;
-import org.una.tienda.facturacion.exceptions.EvitarModificarContenidoInactivoExeption;
-import org.una.tienda.facturacion.exceptions.ProductoConDescuentoMayorAlPermitidoException;
+import org.una.tienda.facturacion.exceptions.EModificarContenidoInactivoExeption;
 
 import java.util.Optional;
 
@@ -76,10 +74,10 @@ class ClienteServiceImplementationTest {
 
 
     @Test
-    public void seEvitaModificarUnClienteInactivo() throws EvitarModificarContenidoInactivoExeption, ClienteSinDatosEscencialesExeption {
+    public void seEvitaModificarUnClienteInactivo() throws EModificarContenidoInactivoExeption, ClienteSinDatosEscencialesExeption {
         initDataForseEvitaModificarUnClienteInactivo();
 
-        assertThrows(EvitarModificarContenidoInactivoExeption.class,
+        assertThrows(EModificarContenidoInactivoExeption.class,
                 () -> {
                     clienteService.update(clienteInactivo);
                 }
@@ -100,17 +98,9 @@ class ClienteServiceImplementationTest {
         clienteInactivo = clienteService.create(clienteInactivo);
     }
 
-   /* @AfterEach
-    public void tearDown() {
-        if (clienteEjemplo != null) {
-            clienteService.delete(clienteEjemplo.getId());
-            clienteEjemplo = null;
-        }
-
-    }*/
 
     @Test
-    public void sePuedeModificarUnClienteCorrectamente() throws ClienteSinDatosEscencialesExeption, EvitarModificarContenidoInactivoExeption {
+    public void sePuedeModificarUnClienteCorrectamente() throws ClienteSinDatosEscencialesExeption, EModificarContenidoInactivoExeption {
         clienteEjemplo = clienteService.create(clienteEjemplo);
         clienteEjemplo.setNombre("Monica");
 

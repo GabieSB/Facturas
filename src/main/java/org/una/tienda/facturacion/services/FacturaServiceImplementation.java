@@ -4,17 +4,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.una.tienda.facturacion.dto.FacturaDTO;
-import org.una.tienda.facturacion.dto.FacturaDetalleDTO;
 import org.una.tienda.facturacion.entities.Factura;
-import org.una.tienda.facturacion.entities.FacturaDetalle;
 import org.una.tienda.facturacion.exceptions.ClienteEstaInactivoExeption;
-import org.una.tienda.facturacion.exceptions.EvitarModificarContenidoInactivoExeption;
+import org.una.tienda.facturacion.exceptions.EModificarContenidoInactivoExeption;
 import org.una.tienda.facturacion.repositories.IFacturaRepository;
 import org.una.tienda.facturacion.utils.MapperUtils;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 public class FacturaServiceImplementation implements IFacturaService{
@@ -61,9 +57,9 @@ public class FacturaServiceImplementation implements IFacturaService{
 
     @Override
     @Transactional
-    public Optional<FacturaDTO> update(FacturaDTO facturaDTO) throws EvitarModificarContenidoInactivoExeption {
+    public Optional<FacturaDTO> update(FacturaDTO facturaDTO) throws EModificarContenidoInactivoExeption {
         if (facturaRepository.findById(facturaDTO.getId()).isPresent()) {
-            if(!facturaDTO.getEstado()) throw new EvitarModificarContenidoInactivoExeption("No se puede modificar una factura inactivo");
+            if(!facturaDTO.getEstado()) throw new EModificarContenidoInactivoExeption("No se puede modificar una factura inactivo");
             Factura factura = MapperUtils.EntityFromDto(facturaDTO, Factura.class);
             factura = facturaRepository.save(factura);
             return Optional.ofNullable(MapperUtils.DtoFromEntity(factura, FacturaDTO.class));

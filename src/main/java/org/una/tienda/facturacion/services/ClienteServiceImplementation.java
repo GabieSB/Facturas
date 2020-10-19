@@ -6,7 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.una.tienda.facturacion.dto.ClienteDTO;
 import org.una.tienda.facturacion.entities.Cliente;
 import org.una.tienda.facturacion.exceptions.ClienteSinDatosEscencialesExeption;
-import org.una.tienda.facturacion.exceptions.EvitarModificarContenidoInactivoExeption;
+import org.una.tienda.facturacion.exceptions.EModificarContenidoInactivoExeption;
 import org.una.tienda.facturacion.repositories.IClienteRepository;
 import org.una.tienda.facturacion.utils.MapperUtils;
 
@@ -57,16 +57,16 @@ public class ClienteServiceImplementation implements  IClienteService {
 
     @Override
     @Transactional
-    public Optional<ClienteDTO> update(ClienteDTO clienteDTO) throws EvitarModificarContenidoInactivoExeption {
+    public Optional<ClienteDTO> update(ClienteDTO clienteDTO) throws EModificarContenidoInactivoExeption {
         if (clienteRepository.findById(clienteDTO.getId()).isPresent()) {
 
-            if(!clienteDTO.getEstado()) throw new EvitarModificarContenidoInactivoExeption("No se puede modificar un cliente inactivo");
+            if(!clienteDTO.getEstado()) throw new EModificarContenidoInactivoExeption("No se puede modificar un cliente inactivo");
             Cliente cliente = MapperUtils.EntityFromDto(clienteDTO, Cliente.class);
             cliente = clienteRepository.save(cliente);
             return Optional.ofNullable(MapperUtils.DtoFromEntity(cliente, ClienteDTO.class));
         } else {
             return null;
-            //   throw new EvitarModificarContenidoInactivoExeption("No se puede modificar contenifo que no existe");
+
         }
     }
 

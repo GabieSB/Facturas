@@ -1,6 +1,5 @@
 package org.una.tienda.facturacion.services;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.una.tienda.facturacion.dto.ProductoDTO;
 import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
-import org.una.tienda.facturacion.exceptions.EvitarModificarContenidoInactivoExeption;
+import org.una.tienda.facturacion.exceptions.EModificarContenidoInactivoExeption;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -48,7 +47,7 @@ public class ProductoServiceImplementationTest {
         }
     }
       @Test
-    public void sePuedeModificarUnProductoCorrectamente() throws EvitarModificarContenidoInactivoExeption {
+    public void sePuedeModificarUnProductoCorrectamente() throws EModificarContenidoInactivoExeption {
 
         productoEjemplo = productoService.create(productoEjemplo);
         productoEjemplo.setDescripcion("Producto en mal estado");
@@ -80,10 +79,10 @@ public class ProductoServiceImplementationTest {
 
 
     @Test
-    public void seEvitaModificarUnProductoInactivo() throws EvitarModificarContenidoInactivoExeption {
+    public void seEvitaModificarUnProductoInactivo() throws EModificarContenidoInactivoExeption {
         initDataForseEvitaModificarUnProductoInactivo();
 
-        assertThrows(EvitarModificarContenidoInactivoExeption.class,
+        assertThrows(EModificarContenidoInactivoExeption.class,
                 () -> {
                     productoService.update(productoInactivo, productoInactivo.getId());
                 }
@@ -102,13 +101,5 @@ public class ProductoServiceImplementationTest {
         System.out.println(productoInactivo.getId());
     }
 
-  /*  @AfterEach
-    public void tearDown() {
-        if (productoEjemplo != null) {
-            productoService.delete(productoEjemplo.getId());
-            productoEjemplo = null;
-        }
-
-    }*/
 
 }
